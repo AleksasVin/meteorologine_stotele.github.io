@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteorologinė Stotis - LHMT Duomenys</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loader" class="loader">
+        <div class="loader-spinner"></div>
+        <p>Įkeliami duomenys...</p>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <svg class="weather-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.32 0z"></path>
+                </svg>
+                <h1>Orų Stotis</h1>
+            </div>
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="#home" class="nav-link active" data-page="home">🏠 Pagrindinis</a></li>
+                    <li><a href="#forecast" class="nav-link" data-page="forecast">📊 Prognozė</a></li>
+                    <li><a href="#historical" class="nav-link" data-page="historical">📈 Duomenys</a></li>
+                    <li><a href="#map" class="nav-link" data-page="map">🗺️ Stotys</a></li>
+                    <li><a href="#settings" class="nav-link" data-page="settings">⚙️ Nustatymai</a></li>
+                </ul>
+            </nav>
+            <button class="refresh-btn" id="refresh-btn" aria-label="Atnaujinti duomenis">🔄</button>
+        </div>
+    </header>
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="container">
+                <div class="location-header">
+                    <h2 id="location-name">Vilnius, Lietuva</h2>
+                    <p id="last-update" class="update-time">Paskutinis atnaujinimas: --:--</p>
+                </div>
+
+                <!-- Current Weather Card -->
+                <div class="current-weather-card">
+                    <div class="weather-main">
+                        <div class="temperature-display">
+                            <span class="temp-value" id="current-temp">--</span>
+                            <span class="temp-unit">°C</span>
+                        </div>
+                        <div class="weather-description">
+                            <p id="weather-condition">--</p>
+                            <p id="weather-description">--</p>
+                        </div>
+                    </div>
+                    <div class="weather-icon-large">
+                        <span id="weather-icon-emoji">☀️</span>
+                    </div>
+                </div>
+
+                <!-- Weather Details Grid -->
+                <div class="weather-grid">
+                    <div class="weather-item card-glass">
+                        <div class="weather-item-header">
+                            <span class="weather-item-icon">💨</span>
+                            <span class="weather-item-title">Vėjo Greitis</span>
+                        </div>
+                        <p class="weather-item-value" id="wind-speed">-- m/s</p>
+                        <p class="weather-item-secondary" id="wind-direction">Kryptis: --</p>
+                    </div>
+
+                    <div class="weather-item card-glass">
+                        <div class="weather-item-header">
+                            <span class="weather-item-icon">💧</span>
+                            <span class="weather-item-title">Drėgmė</span>
+                        </div>
+                        <p class="weather-item-value" id="humidity">-- %</p>
+                        <div class="humidity-bar">
+                            <div class="humidity-fill" id="humidity-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="weather-item card-glass">
+                        <div class="weather-item-header">
+                            <span class="weather-item-icon">🌡️</span>
+                            <span class="weather-item-title">Juntamoji Temperatūra</span>
+                        </div>
+                        <p class="weather-item-value" id="feels-like">-- °C</p>
+                    </div>
+
+                    <div class="weather-item card-glass">
+                        <div class="weather-item-header">
+                            <span class="weather-item-icon">🔽</span>
+                            <span class="weather-item-title">Slėgis</span>
+                        </div>
+                        <p class="weather-item-value" id="pressure">-- hPa</p>
+                    </div>
+
+                    <div class="weather-item card-glass">
+                        <div class="weather-item-header">
+                            <span class="weather-item-icon">🌧️</span>
+                            <span class="weather-item-title">Krituliai</span>
+                        </div>
+                        <p class="weather-item-value" id="precipitation">-- mm</p>
+                    </div>
+
+                    <div class="weather-item card-glass">
+                        <div class="weather-item-header">
+                            <span class="weather-item-icon">👁️</span>
+                            <span class="weather-item-title">Matomumas</span>
+                        </div>
+                        <p class="weather-item-value" id="visibility">-- km</p>
+                    </div>
+                </div>
+
+                <!-- Sun Times Card -->
+                <div class="sun-times-card card-glass">
+                    <div class="sun-time-item">
+                        <span class="sun-icon">🌅</span>
+                        <div>
+                            <p class="sun-time-label">Saulė Teka</p>
+                            <p class="sun-time-value" id="sunrise">--:--</p>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="sun-time-item">
+                        <span class="sun-icon">🌇</span>
+                        <div>
+                            <p class="sun-time-label">Saulė Leidžiasi</p>
+                            <p class="sun-time-value" id="sunset">--:--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts Section -->
+                <div id="alerts-container" class="alerts-container" style="display: none;">
+                    <h3>⚠️ Oro Įspėjimai</h3>
+                    <div id="alerts-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Forecast Page -->
+        <section id="forecast" class="page">
+            <div class="container">
+                <h2>Orų Prognozė</h2>
+                
+                <div class="forecast-tabs">
+                    <button class="tab-btn active" data-tab="hourly">Valandinė</button>
+                    <button class="tab-btn" data-tab="daily">7 Dienų</button>
+                </div>
+
+                <!-- Hourly Forecast -->
+                <div id="hourly-tab" class="tab-content active">
+                    <div id="hourly-forecast" class="forecast-scroll"></div>
+                </div>
+
+                <!-- Daily Forecast -->
+                <div id="daily-tab" class="tab-content">
+                    <div id="daily-forecast" class="forecast-grid"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historical Data Page -->
+        <section id="historical" class="page">
+            <div class="container">
+                <h2>Istoriniai Duomenys</h2>
+                <div class="chart-container">
+                    <canvas id="temperature-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="humidity-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pressure-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stations Map Page -->
+        <section id="map" class="page">
+            <div class="container">
+                <h2>Meteorologinės Stotys</h2>
+                <div id="map-container" class="stations-map"></div>
+                <div id="stations-list" class="stations-list"></div>
+            </div>
+        </section>
+
+        <!-- Settings Page -->
+        <section id="settings" class="page">
+            <div class="container">
+                <h2>Nustatymai</h2>
+                <form id="settings-form" class="settings-form">
+                    <div class="form-group">
+                        <label for="location">Pasirinkti Vietovę:</label>
+                        <select id="location">
+                            <option value="Vilnius">Vilnius</option>
+                            <option value="Kaunas">Kaunas</option>
+                            <option value="Klaipėda">Klaipėda</option>
+                            <option value="Šiauliai">Šiauliai</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="refresh-interval">Atnaujinimo Intervalas:</label>
+                        <select id="refresh-interval">
+                            <option value="5">Kas 5 minutes</option>
+                            <option value="15" selected>Kas 15 minučių</option>
+                            <option value="30">Kas 30 minučių</option>
+                            <option value="60">Kas valandą</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="theme">Tema:</label>
+                        <select id="theme">
+                            <option value="dark" selected>Tamsi</option>
+                            <option value="light">Šviesla</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="notifications" checked>
+                            Leisti Perspėjimus
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Išsaugoti Nustatymus</button>
+                </form>
+
+                <div class="favorites-section">
+                    <h3>Mėgstamos Vietos</h3>
+                    <div id="favorites-list" class="favorites-list"></div>
+                    <button type="button" class="btn-secondary" id="add-favorite">➕ Pridėti Naują</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
